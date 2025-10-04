@@ -59,4 +59,32 @@ def scrape_obec_data(obec_url):
                 hlasy = cols[2].text.strip()
                 strany[nazev_strany] = hlasy
 
+    return {
+        "Kód obce": kod_obce,
+        "Název obce": nazev_obce,
+        "Voliči v seznamu": volici,
+        "Vydané obálky": obalky,
+        "Platné hlasy": platne_hlasy,
+        **strany
+    }
+
+
+
+# Hlavní funkce
+def main():
+    validate_arguments(sys.argv)
+    url = sys.argv[1]
+    output_file = sys.argv[2]
+
+    obec_links = get_obec_links(url)
+    vysledky = [scrape_obec_data(link) for link in obec_links]
+
+    df = pd.DataFrame(vysledky)
+    df.to_csv(output_file, index=False)
+    print(f"✅ Výsledky byly uloženy do souboru: {output_file}")
+
+
+# Spuštění
+if __name__ == "__main__":
+    main()
 
