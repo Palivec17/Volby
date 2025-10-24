@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 import csv
 
 
+
 # Zadané argumenty
 def validate_arguments(args):
     if len(args) != 3:
@@ -20,7 +21,6 @@ def validate_arguments(args):
     if not args[1].startswith("https://www.volby.cz/pls/ps2017nss/ps32?xjazyk=CZ"):
         print("❌ Chyba: První argument musí být platný odkaz na územní celek.")
         sys.exit(1)
-
 
 # Odkazy na obce
 def get_obec_links(url):
@@ -33,6 +33,7 @@ def get_obec_links(url):
             full_url = "https://www.volby.cz/pls/ps2017nss/" + href
             links.append(full_url)
     return links
+
 
 
 # Data z obcí
@@ -73,6 +74,8 @@ def scrape_obec_data(obec_url):
     }
 
 
+
+
 # Hlavní funkce
 def main():
     validate_arguments(sys.argv)
@@ -83,12 +86,21 @@ def main():
     vysledky = []
     vsechny_strany = set()
 
-    for obec_url in obec_links:
-        data = scrape_obec_data(obec_url)
-        vysledky.append(data)
-        vsechny_strany.update(data.keys() - {"Kód obce", "Název obce", "Voliči v seznamu", "Vydané obálky", "Platné hlasy"})
+    print(f"Nalezeno obcí: {len(obec_links)}")
 
-    # Uložení do CSV
+    for obec_url in obec_links:
+        print(f"Zpracovávám: {obec_url}")
+        try:
+            data = scrape_obec_data(obec_url)
+            vysledky.append(data)
+            vsechny_strany.update(data.keys() - {"Kód obce", "Název obce", "Voliči v seznamu", "Vydané obálky", "Platné hlasy"})
+            print(f"→ {data['Název obce']} ({data['Kód obce']})")
+        except Exception as e:
+            print(f"⚠️ Chyba při zpracování obce: {obec_url}")
+            print(f"   → {e}")
+
+        
+# Uložení do CSV
     with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
         fieldnames = ["Kód obce", "Název obce", "Voliči v seznamu", "Vydané obálky", "Platné hlasy"] + sorted(vsechny_strany)
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -97,8 +109,11 @@ def main():
             writer.writerow(row)
 
 
+
+
+
 # Spuštění
 if __name__ == "__main__":
     main()
 
-    
+
