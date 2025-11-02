@@ -57,3 +57,5 @@ Voliči v seznamu
 Vydané obálky
 Platné hlasy
 Hlasy pro jednotlivé strany
+
+
